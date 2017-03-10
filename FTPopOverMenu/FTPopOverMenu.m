@@ -74,6 +74,9 @@ typedef NS_ENUM(NSUInteger, FTPopOverMenuArrowDirection) {
         self.tintColor = FTDefaultTintColor;
         self.borderColor = FTDefaultTintColor;
         self.borderWidth = FTDefaultMenuBorderWidth;
+        self.backgroundColorOverlay = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+        self.backgroundColorOverlay.backgroundColor = [UIColor blackColor];
+        self.backgroundColorOverlay.alpha = .5;
         self.textAlignment = NSTextAlignmentLeft;
         self.ignoreImageOriginalColor = NO;
         self.allowRoundedArrow = NO;
@@ -463,6 +466,7 @@ typedef NS_ENUM(NSUInteger, FTPopOverMenuArrowDirection) {
 @interface FTPopOverMenu () <UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) UIView * backgroundView;
+@property (nonatomic, strong) UIView * overlayBackgroundView;
 @property (nonatomic, strong) FTPopOverMenuView *popMenuView;
 @property (nonatomic, strong) FTPopOverMenuDoneBlock doneBlock;
 @property (nonatomic, strong) FTPopOverMenuDismissBlock dismissBlock;
@@ -670,6 +674,16 @@ typedef NS_ENUM(NSUInteger, FTPopOverMenuArrowDirection) {
           dismissBlock:(FTPopOverMenuDismissBlock)dismissBlock
 {
     [self.backgroundView addSubview:self.popMenuView];
+    _overlayBackgroundView = [FTPopOverMenuConfiguration defaultConfiguration].backgroundColorOverlay;
+    if (_overlayBackgroundView) {
+        [UIView animateWithDuration:FTDefaultAnimationDuration
+                         animations:^(void) {
+            _overlayBackgroundView.alpha = 0;
+            _overlayBackgroundView.alpha = .5;
+        }];
+        [self.backgroundView addSubview:_overlayBackgroundView];
+        [self.backgroundView sendSubviewToBack:_overlayBackgroundView];
+    }
     [[[UIApplication sharedApplication] keyWindow] addSubview:self.backgroundView];
     
     self.sender = sender;
@@ -849,10 +863,11 @@ typedef NS_ENUM(NSUInteger, FTPopOverMenuArrowDirection) {
                      animations:^{
                          _popMenuView.alpha = 0;
                          _popMenuView.transform = CGAffineTransformMakeScale(0.1, 0.1);
+                         _overlayBackgroundView.alpha = 0;
                      }completion:^(BOOL finished) {
                          if (finished) {
-                             [self.popMenuView removeFromSuperview];
-                             [self.backgroundView removeFromSuperview];
+                                [self.backgroundView removeFromSuperview];
+                                [self.popMenuView removeFromSuperview];
                              if (selectedIndex < 0) {
                                  if (self.dismissBlock) {
                                      self.dismissBlock();
