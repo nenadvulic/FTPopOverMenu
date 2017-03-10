@@ -80,6 +80,7 @@ typedef NS_ENUM(NSUInteger, FTPopOverMenuArrowDirection) {
         self.menuTextMargin = FTDefaultMenuTextMargin;
         self.menuIconMargin = FTDefaultMenuIconMargin;
         self.animationDuration = FTDefaultAnimationDuration;
+        self.hideArrow = YES;
     }
     return self;
 }
@@ -333,6 +334,7 @@ typedef NS_ENUM(NSUInteger, FTPopOverMenuArrowDirection) {
     }
     
     UIBezierPath *path = [UIBezierPath bezierPath];
+    BOOL hideArrow = [FTPopOverMenuConfiguration defaultConfiguration].hideArrow;
     BOOL allowRoundedArrow = [FTPopOverMenuConfiguration defaultConfiguration].allowRoundedArrow;
     CGFloat offset = 2.f*FTDefaultMenuArrowRoundRadius*sinf(M_PI_4/2.f);
     CGFloat roundcenterHeight = offset + FTDefaultMenuArrowRoundRadius*sqrtf(2.f);
@@ -348,9 +350,11 @@ typedef NS_ENUM(NSUInteger, FTPopOverMenuArrowDirection) {
                 [path addLineToPoint:CGPointMake(anglePoint.x - self.menuArrowWidth + (offset * (1.f+1.f/sqrtf(2.f))), self.menuArrowHeight - offset/sqrtf(2.f))];
                 [path addArcWithCenter:CGPointMake(anglePoint.x - self.menuArrowWidth, self.menuArrowHeight - 2.f*FTDefaultMenuArrowRoundRadius) radius:2.f*FTDefaultMenuArrowRoundRadius startAngle:M_PI_4 endAngle:M_PI_2 clockwise:YES];
             } else {
-                [path moveToPoint:CGPointMake(anglePoint.x + self.menuArrowWidth, self.menuArrowHeight)];
-                [path addLineToPoint:anglePoint];
-                [path addLineToPoint:CGPointMake( anglePoint.x - self.menuArrowWidth, self.menuArrowHeight)];
+                if (!hideArrow) {
+                    [path moveToPoint:CGPointMake(anglePoint.x + self.menuArrowWidth, self.menuArrowHeight)];
+                    [path addLineToPoint:anglePoint];
+                    [path addLineToPoint:CGPointMake( anglePoint.x - self.menuArrowWidth, self.menuArrowHeight)];
+                }
             }
             
             [path addLineToPoint:CGPointMake( FTDefaultMenuCornerRadius, self.menuArrowHeight)];
@@ -375,9 +379,11 @@ typedef NS_ENUM(NSUInteger, FTPopOverMenuArrowDirection) {
                 [path addLineToPoint:CGPointMake(anglePoint.x - self.menuArrowWidth + (offset * (1.f+1.f/sqrtf(2.f))), anglePoint.y - self.menuArrowHeight + offset/sqrtf(2.f))];
                 [path addArcWithCenter:CGPointMake(anglePoint.x - self.menuArrowWidth, anglePoint.y - self.menuArrowHeight + 2.f*FTDefaultMenuArrowRoundRadius) radius:2.f*FTDefaultMenuArrowRoundRadius startAngle:M_PI_4*7 endAngle:M_PI_2*3 clockwise:NO];
             } else {
-                [path moveToPoint:CGPointMake(anglePoint.x + self.menuArrowWidth, anglePoint.y - self.menuArrowHeight)];
-                [path addLineToPoint:anglePoint];
-                [path addLineToPoint:CGPointMake( anglePoint.x - self.menuArrowWidth, anglePoint.y - self.menuArrowHeight)];
+                if (!hideArrow) {
+                    [path moveToPoint:CGPointMake(anglePoint.x + self.menuArrowWidth, anglePoint.y - self.menuArrowHeight)];
+                    [path addLineToPoint:anglePoint];
+                    [path addLineToPoint:CGPointMake( anglePoint.x - self.menuArrowWidth, anglePoint.y - self.menuArrowHeight)];
+                }
             }
             
             [path addLineToPoint:CGPointMake( FTDefaultMenuCornerRadius, anglePoint.y - self.menuArrowHeight)];
