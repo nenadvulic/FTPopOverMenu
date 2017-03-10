@@ -253,6 +253,7 @@ typedef void (^FTPopOverMenuDismissBlock)();
  */
 + (void) showFromSenderFrame:(CGRect )senderFrame
                withMenuArray:(NSArray<NSString*> *)menuArray
+            withSubMenuArray:(NSArray<NSString*> *)subMenuArray
                   imageArray:(NSArray *)imageArray
                    doneBlock:(FTPopOverMenuDoneBlock)doneBlock
                 dismissBlock:(FTPopOverMenuDismissBlock)dismissBlock;
