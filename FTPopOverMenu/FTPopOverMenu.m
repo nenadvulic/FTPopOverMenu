@@ -83,6 +83,8 @@ typedef NS_ENUM(NSUInteger, FTPopOverMenuArrowDirection) {
         self.menuTextMargin = FTDefaultMenuTextMargin;
         self.menuIconMargin = FTDefaultMenuIconMargin;
         self.animationDuration = FTDefaultAnimationDuration;
+        self.subTextFont = FTDefaultMenuFont;
+        self.subTextColor = FTDefaultTextColor;
         self.hideArrow = YES;
     }
     return self;
@@ -96,7 +98,6 @@ typedef NS_ENUM(NSUInteger, FTPopOverMenuArrowDirection) {
 
 @property (nonatomic, strong) UIImageView *iconImageView;
 @property (nonatomic, strong) UILabel *menuNameLabel;
-@property (nonatomic, strong) UILabel *subMenuNameLabel;
 
 @end
 
@@ -141,15 +142,6 @@ typedef NS_ENUM(NSUInteger, FTPopOverMenuArrowDirection) {
 }
 
 
--(UILabel *)subMenuNameLabel
-{
-    if (!_subMenuNameLabel) {
-        _subMenuNameLabel = [[UILabel alloc]initWithFrame:CGRectZero];
-        _subMenuNameLabel.backgroundColor = [UIColor clearColor];
-    }
-    return _subMenuNameLabel;
-}
-
 -(UILabel *)menuNameLabel
 {
     if (!_menuNameLabel) {
@@ -187,17 +179,15 @@ typedef NS_ENUM(NSUInteger, FTPopOverMenuArrowDirection) {
     self.menuNameLabel.font = configuration.textFont;
     self.menuNameLabel.textColor = configuration.textColor;
     self.menuNameLabel.textAlignment = configuration.textAlignment;
-    self.menuNameLabel.text = menuName;
-    menuNameRect = CGRectMake(self.menuNameLabel.frame.origin.x,
-                              self.menuNameLabel.frame.origin.y + self.menuNameLabel.frame.size.height,
-                              self.menuNameLabel.frame.size.width,
-                              self.menuNameLabel.frame.size.height);
-    self.subMenuNameLabel.frame = menuNameRect;
-    self.subMenuNameLabel.font = configuration.textFont;
-    self.subMenuNameLabel.textColor = configuration.textColor;
-    self.subMenuNameLabel.textAlignment = configuration.textAlignment;
-    self.subMenuNameLabel.text = subMenu;
-    [self.contentView addSubview:self.subMenuNameLabel];
+    if (subMenu) {
+        NSMutableAttributedString * firstPartAttribute = [[NSMutableAttributedString alloc] initWithString:menuName
+                                                                                                attributes:@{NSFontAttributeName:configuration.textFont}];
+        NSAttributedString* forgetAttributedString = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"\n%@", subMenu]
+                                                                                     attributes:@{NSFontAttributeName:configuration.subTextFont}];
+        [firstPartAttribute appendAttributedString:forgetAttributedString];
+        self.menuNameLabel.numberOfLines = 0;
+        self.menuNameLabel.attributedText = firstPartAttribute;
+    }
     [self.contentView addSubview:self.menuNameLabel];
 }
 
@@ -344,6 +334,7 @@ typedef NS_ENUM(NSUInteger, FTPopOverMenuArrowDirection) {
 -(void)showWithFrame:(CGRect )frame
           anglePoint:(CGPoint )anglePoint
        withNameArray:(NSArray<NSString*> *)nameArray
+           subMemenu:(NSArray<NSString*> *)subArray
       imageNameArray:(NSArray *)imageNameArray
     shouldAutoScroll:(BOOL)shouldAutoScroll
       arrowDirection:(FTPopOverMenuArrowDirection)arrowDirection
@@ -352,6 +343,7 @@ typedef NS_ENUM(NSUInteger, FTPopOverMenuArrowDirection) {
     self.frame = frame;
     _menuStringArray = nameArray;
     _menuImageArray = imageNameArray;
+    _subMenuStringArray = subArray;
     _arrowDirection = arrowDirection;
     self.doneBlock = doneBlock;
     self.menuTableView.scrollEnabled = shouldAutoScroll;
@@ -820,6 +812,7 @@ typedef NS_ENUM(NSUInteger, FTPopOverMenuArrowDirection) {
     [_popMenuView showWithFrame:menuRect
                      anglePoint:menuArrowPoint
                   withNameArray:self.menuArray
+                      subMemenu:self.subMenuArray
                  imageNameArray:self.menuImageArray
                shouldAutoScroll:shouldAutoScroll
                  arrowDirection:arrowDirection
